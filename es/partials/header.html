@@ -1,5 +1,11 @@
 <header id="siteHeaderBar"
   class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-backgroundDark/70 border-b border-white/5 transition-all duration-300">
+  <style>
+    /* Header shrink on scroll */
+    #siteHeaderBar.is-scrolled { background-color: rgba(11, 20, 26, 0.88); border-bottom-color: rgba(255,255,255,0.08); }
+    #siteHeaderBar.is-scrolled #headerInner { padding-top: 0.65rem; padding-bottom: 0.65rem; }
+    #siteHeaderBar.is-scrolled [data-header-logo] { height: 1.5rem; }
+  </style>
   <div id="headerInner"
     class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between transition-all duration-300">
 
@@ -8,7 +14,7 @@
       <img
         src="assets/adia-logo-dark.png"
         alt="AdIA"
-        class="h-7 md:h-8 w-auto transition-all duration-300"
+        class="h-6 md:h-7 w-auto transition-all duration-300"
         data-header-logo
         loading="eager"
         decoding="async"
