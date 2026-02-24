@@ -13,7 +13,9 @@
       const href = norm(a.getAttribute("href"));
       const isActive = href === current;
       a.classList.toggle("text-primary", isActive);
-      a.classList.toggle("font-semibold", isActive);      a.classList.toggle("border-primary", isActive);      a.classList.toggle("opacity-90", !isActive);
+      a.classList.toggle("font-semibold", isActive);
+      a.classList.toggle("border-primary", isActive);
+      a.classList.toggle("opacity-90", !isActive);
     });
   }
 
@@ -125,33 +127,132 @@
     window.addEventListener("pageshow", () => { onScroll(); setMobileTop(); });
   }
 
-  async function inject() {
-    const headerHost = document.getElementById("siteHeader");
-    const footerHost = document.getElementById("siteFooter");
+  function ensureVideoModal() {
+    if (document.getElementById("adiaVideoModal")) return;
 
-    // If hosts aren't present, do nothing (page might not use includes)
-    if (!headerHost && !footerHost) return;
+    const modal = document.createElement("div");
+    modal.id = "adiaVideoModal";
+    modal.className =
+      "fixed inset-0 z-[9999] hidden items-center justify-center bg-black/70 p-4";
+    modal.innerHTML = `
+      <div class="relative w-full max-w-5xl">
+        <button id="adiaVideoModalClose"
+                class="absolute -top-10 right-0 text-white/80 hover:text-white text-sm font-semibold">
+          Cerrar ✕
+        </button>
 
-    try {
-      if (headerHost) {
-        const res = await fetch(HEADER_URL, { cache: "no-store" });
-        headerHost.innerHTML = await res.text();
-      }
-      if (footerHost) {
-        const res = await fetch(FOOTER_URL, { cache: "no-store" });
-        footerHost.innerHTML = await res.text();
-      }
-    } catch (e) {
-      // fail silently – page will still render without injected chrome
-      return;
-    }
+        <div class="rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl">
+          <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+            <div class="text-white font-bold" id="adiaVideoModalTitle">Video</div>
+            <div class="text-xs text-white/60">Presiona ESC para cerrar</div>
+          </div>
 
-    // Init behaviors after injection
+          <div class="aspect-video bg-black">
+            <div id="adiaVideoModalBody" class="h-full w-full"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const close = () => {
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.classList.remove("modal-open");
+      const body = document.getElementById("adiaVideoModalBody");
+      if (body) body.innerHTML = "";
+    };
+
+    document
+      .getElementById("adiaVideoModalClose")
+      ?.addEventListener("click", close);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) close();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
+  }
+
+  function openVideoModal({ src, title }) {
+    ensureVideoModal();
+    const modal = document.getElementById("adiaVideoModal");
+    const body = document.getElementById("adiaVideoModalBody");
+    const t = document.getElementById("adiaVideoModalTitle");
+    if (!modal || !body) return;
+
+    t.textContent = title || "Video";
+    body.innerHTML = "";
+
+    const v = document.createElement("video");
+    v.className = "h-full w-full object-contain bg-black";
+    v.controls = true;
+    v.playsInline = true;
+    v.autoplay = true;
+
+    const s = document.createElement("source");
+    s.src = src;
+    s.type = "video/mp4";
+    v.appendChild(s);
+
+    body.appendChild(v);
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.classList.add("modal-open");
+
+    v.play().catch(() => {});
+  }
+
+  function initVideoCards() {
+    const cards = document.querySelectorAll(".js-videoCard[data-video-src]");
+    if (!cards.length) return;
+
+    cards.forEach((card) => {
+      if (card.dataset.vbound === "1") return;
+      card.dataset.vbound = "1";
+
+      card.addEventListener("click", () => {
+        const src = card.getAttribute("data-video-src");
+        const title = card.getAttribute("data-video-title") || "Video";
+        if (src) openVideoModal({ src, title });
+      });
+    });
+  }
+
+  function initPageBehaviors() {
     setActiveNav();
     initMobileMenu();
     setFooterYear();
     initLangSwitcher();
     initHeaderShrink();
+    initVideoCards();
+  }
+
+  async function inject() {
+    const headerHost = document.getElementById("siteHeader");
+    const footerHost = document.getElementById("siteFooter");
+
+    // If hosts aren't present, still initialize local page behaviors.
+    if (!headerHost && !footerHost) {
+      initPageBehaviors();
+      return;
+    }
+
+    try {
+      if (headerHost) {
+        const res = await fetch(HEADER_URL, { cache: "no-store" });
+        if (res.ok) headerHost.innerHTML = await res.text();
+      }
+      if (footerHost) {
+        const res = await fetch(FOOTER_URL, { cache: "no-store" });
+        if (res.ok) footerHost.innerHTML = await res.text();
+      }
+    } catch (e) {
+      // Fail silently: keep page functional even if includes cannot be loaded.
+    }
+
+    initPageBehaviors();
   }
 
   window.addEventListener("DOMContentLoaded", inject);
