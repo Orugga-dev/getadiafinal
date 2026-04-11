@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>TransUnion × AdIA — Exclusive Preview</title>
+  <meta name="robots" content="noindex, nofollow"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4DA3FF',
+            backgroundDark: '#0B141A',
+            backgroundCard: '#121E27',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    html, body { overflow-x: hidden; scroll-behavior: smooth; }
+
+    /* ── Password Gate ── */
+    #passwordGate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0B141A;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    #passwordGate.fade-out { opacity: 0; pointer-events: none; }
+    #passwordGate.gone    { display: none; }
+
+    /* ── Noise texture ── */
+    .noise {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 160px 160px;
+      opacity: 0.035; mix-blend-mode: overlay;
+    }
+
+    /* ── Glow ── */
+    .glow { box-shadow: 0 0 70px rgba(77,163,255,0.13), 0 0 140px rgba(77,163,255,0.07); }
+
+    /* ── Gradient border (After video) ── */
+    .grad-border {
+      position: relative;
+      background: #121E27;
+      border-radius: 1rem;
+    }
+    .grad-border::before {
+      content: ''; position: absolute; inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(77,163,255,.45) 0%, rgba(77,163,255,.05) 50%, rgba(77,163,255,.3) 100%);
+      z-index: -1;
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── 16:9 video wrapper ── */
+    .ratio-16-9 { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; }
+    .ratio-16-9 > * {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    }
+
+    /* ── Beam divider ── */
+    .beam {
+      width: 1px; height: 80px; margin: 0 auto;
+      background: linear-gradient(to bottom, transparent, #4DA3FF 50%, transparent);
+    }
+
+    /* ── Section pills ── */
+    .pill-before {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 9999px;
+      font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(226,232,240,.65);
+    }
+    .pill-after {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 9999px;
+      font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase;
+      background: rgba(77,163,255,.12); border: 1px solid rgba(77,163,255,.3);
+      color: #4DA3FF;
+    }
+
+    /* ── Stat card ── */
+    .stat-card { transition: transform .2s ease, border-color .2s ease; }
+    .stat-card:hover { transform: translateY(-3px); }
+
+    /* ── Lock pulse ── */
+    @keyframes lockPulse { 0%,100%{opacity:.45} 50%{opacity:1} }
+    .lock-pulse { animation: lockPulse 2.4s ease-in-out infinite; }
+
+    /* ── Hero background ── */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 55% 45% at 25% 15%, rgba(77,163,255,.09) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 55% at 75% 85%, rgba(77,163,255,.06) 0%, transparent 65%),
+        #0B141A;
+    }
+
+    /* ── Transition section ── */
+    .tr-bg {
+      background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(77,163,255,.07) 0%, transparent 70%);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0B141A; }
+    ::-webkit-scrollbar-thumb { background: #1c3344; border-radius: 3px; }
+  </style>
+</head>
+
+<body class="bg-backgroundDark text-slate-200 font-sans antialiased">
+
+<!-- ══════════════════════════════════════
+     PASSWORD GATE
+══════════════════════════════════════ -->
+<div id="passwordGate">
+  <div class="w-full max-w-sm mx-auto px-6 text-center">
+
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 text-2xl font-black mb-2">
+        <span class="material-symbols-outlined text-primary">auto_awesome</span>
+        Ad<span class="text-primary">IA</span>
+      </div>
+      <p class="text-slate-500 text-sm mt-2">Private access required</p>
+    </div>
+
+    <div class="bg-backgroundCard border border-white/10 rounded-2xl p-8">
+      <div class="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-6">
+        <span class="material-symbols-outlined text-primary lock-pulse">lock</span>
+      </div>
+      <h2 class="text-lg font-bold text-white mb-2">Confidential Preview</h2>
+      <p class="text-slate-400 text-sm mb-6">This content is intended for authorized viewers only.</p>
+
+      <form id="passwordForm" class="flex flex-col gap-3" autocomplete="off">
+        <input
+          id="passwordInput"
+          type="password"
+          placeholder="Enter access code"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition"
+          autocomplete="current-password"
+        />
+        <p id="passwordError" class="text-red-400 text-xs hidden">Incorrect access code. Try again.</p>
+        <button
+          type="submit"
+          class="w-full bg-primary text-backgroundDark font-bold py-3 rounded-xl hover:bg-primary/90 transition text-sm"
+        >
+          Access Preview &rarr;
+        </button>
+      </form>
+    </div>
+
+    <p class="text-slate-600 text-xs mt-6">AdIA &middot; Confidential</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-backgroundDark/85 border-b border-white/5">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+
+    <a href="#" class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+      <span class="text-lg font-black">Ad<span class="text-primary">IA</span></span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-2 text-xs font-medium text-slate-500">
+      <span class="material-symbols-outlined text-xs lock-pulse text-slate-600">lock</span>
+      Confidential &nbsp;&middot;&nbsp; TransUnion Internal Preview
+    </div>
+
+    <a
+      href="mailto:hola@getadia.com"
+      class="bg-primary/10 border border-primary/25 text-primary text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition"
+    >
+      Talk to us &rarr;
+    </a>
+  </div>
+</header>
+
+<div class="h-16"></div>
+
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section class="hero-bg relative overflow-hidden py-24 md:py-40">
+  <div class="noise"></div>
+
+  <!-- Decorative rings -->
+  <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div class="w-[700px] h-[700px] rounded-full border border-primary/4"></div>
+  </div>
+  <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div class="w-[450px] h-[450px] rounded-full border border-primary/6"></div>
+  </div>
+  <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+    <div class="w-[220px] h-[220px] rounded-full border border-primary/8"></div>
+  </div>
+
+  <div class="relative max-w-4xl mx-auto px-6 text-center">
+
+    <!-- Confidential pill -->
+    <div class="inline-flex items-center gap-1.5 mb-8 px-4 py-1.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-400">
+      <span class="material-symbols-outlined text-xs lock-pulse">lock</span>
+      Confidential &nbsp;&middot;&nbsp; For Internal Use Only
+    </div>
+
+    <!-- Collaboration logos -->
+    <div class="flex items-center justify-center gap-5 mb-12">
+      <div class="bg-backgroundCard border border-white/10 rounded-xl px-6 py-3 text-sm font-bold text-white tracking-wide">
+        TransUnion
+      </div>
+      <span class="text-primary/50 text-xl font-black">&times;</span>
+      <div class="bg-backgroundCard border border-primary/25 rounded-xl px-6 py-3 text-sm font-black">
+        Ad<span class="text-primary">IA</span>
+      </div>
+    </div>
+
+    <h1 class="text-5xl md:text-7xl font-black tracking-tight text-white mb-6 leading-[1.05]">
+      From good<br/>
+      <span class="text-primary italic">to extraordinary.</span>
+    </h1>
+
+    <p class="text-slate-400 max-w-xl mx-auto text-base md:text-lg leading-relaxed mb-4">
+      An exclusive preview of how <span class="text-white font-semibold">AdIA</span> reimagined your content —
+      combining AI speed with world-class production craft.
+    </p>
+    <p class="text-slate-600 text-sm">Scroll down to see the original &darr; then witness the result.</p>
+
+    <div class="mt-14 text-white/25 animate-bounce">
+      <span class="material-symbols-outlined text-3xl">expand_more</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     BEFORE — ORIGINAL VIDEO
+══════════════════════════════════════ -->
+<section class="py-20 md:py-28" id="before">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <div class="reveal text-center mb-12">
+      <span class="pill-before">
+        <span class="material-symbols-outlined" style="font-size:11px">play_circle</span>
+        The Original
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black text-white mt-5 mb-4">Where it started.</h2>
+      <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+        TransUnion's original video — a solid starting point with significant room to grow.
+      </p>
+    </div>
+
+    <div class="reveal">
+      <div class="bg-backgroundCard border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        <!-- Fake browser bar -->
+        <div class="px-5 py-3.5 border-b border-white/8 flex items-center gap-3 bg-white/[0.02]">
+          <div class="flex gap-1.5">
+            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
+          </div>
+          <span class="text-slate-600 text-xs font-mono flex-1 text-center">TransUnion — Original Video</span>
+        </div>
+        <!-- YouTube embed -->
+        <div class="ratio-16-9">
+          <iframe
+            src="https://www.youtube.com/embed/Ve4Nl0Oc0v8?rel=0&modestbranding=1&color=white"
+            title="TransUnion Original Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observation tags -->
+    <div class="reveal mt-6 grid grid-cols-3 gap-3">
+      <div class="bg-backgroundCard/40 border border-white/5 rounded-xl p-4 text-center">
+        <p class="text-slate-600 text-xs uppercase tracking-wider mb-1">Format</p>
+        <p class="text-white font-semibold text-sm">Standard production</p>
+      </div>
+      <div class="bg-backgroundCard/40 border border-white/5 rounded-xl p-4 text-center">
+        <p class="text-slate-600 text-xs uppercase tracking-wider mb-1">Scalability</p>
+        <p class="text-white font-semibold text-sm">Single version</p>
+      </div>
+      <div class="bg-backgroundCard/40 border border-white/5 rounded-xl p-4 text-center">
+        <p class="text-slate-600 text-xs uppercase tracking-wider mb-1">Production time</p>
+        <p class="text-white font-semibold text-sm">Traditional cycle</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     TRANSITION
+══════════════════════════════════════ -->
+<section class="tr-bg py-24 relative overflow-hidden">
+  <div class="beam mb-14"></div>
+
+  <div class="max-w-3xl mx-auto px-6 text-center reveal">
+
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 border border-primary/25 mb-8 glow">
+      <span class="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
+    </div>
+
+    <p class="text-primary text-xs font-bold uppercase tracking-[.3em] mb-4">Then AdIA stepped in.</p>
+
+    <h2 class="text-3xl md:text-5xl font-black text-white mb-6 leading-tight">
+      AI execution.<br/>
+      <span class="text-primary">Human mastery.</span>
+    </h2>
+
+    <p class="text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+      Our team combined <span class="text-white font-semibold">Orugga's AI execution backbone</span> with
+      <span class="text-white font-semibold">Frame's production expertise</span> to rebuild your content
+      from the ground up — faster, sharper, and with dramatically higher impact.
+    </p>
+
+    <!-- 3 pillars -->
+    <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-2xl p-6 group hover:border-primary/25 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
+          <span class="material-symbols-outlined text-primary text-lg">bolt</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-2">AI-Powered Speed</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Weeks of traditional production compressed into days — without cutting a single corner.
+        </p>
+      </div>
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-2xl p-6 group hover:border-primary/25 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
+          <span class="material-symbols-outlined text-primary text-lg">psychology</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-2">Human-Grade Craft</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Every frame reviewed by production veterans — the judgment machines simply can't replicate.
+        </p>
+      </div>
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-2xl p-6 group hover:border-primary/25 transition-all">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition">
+          <span class="material-symbols-outlined text-primary text-lg">verified_user</span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-2">Brand-Safe Delivery</h3>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          On-message, on-brand, ready to run — with enterprise-grade creative guardrails.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="beam mt-14"></div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     AFTER — AdIA VIDEO
+══════════════════════════════════════ -->
+<section class="py-20 md:py-28 bg-black/20" id="after">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <div class="reveal text-center mb-12">
+      <span class="pill-after">
+        <span class="material-symbols-outlined" style="font-size:11px">auto_awesome</span>
+        The AdIA Version
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black text-white mt-5 mb-4">The result.</h2>
+      <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+        Same brief. Entirely different impact. Powered by AdIA.
+      </p>
+    </div>
+
+    <div class="reveal grad-border shadow-2xl glow overflow-hidden">
+
+      <!-- Browser bar (AdIA themed) -->
+      <div class="bg-backgroundCard px-5 py-3.5 border-b border-primary/15 flex items-center gap-3">
+        <div class="flex gap-1.5">
+          <div class="w-2.5 h-2.5 rounded-full bg-primary/35"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-primary/20"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-primary/10"></div>
+        </div>
+        <span class="text-primary/50 text-xs font-mono flex-1 text-center">TransUnion &times; AdIA — Final Delivery</span>
+        <span class="inline-flex items-center gap-1 text-xs text-primary/70 font-bold">
+          <span class="material-symbols-outlined text-xs">auto_awesome</span>
+          AdIA
+        </span>
+      </div>
+
+      <!--
+      ╔══════════════════════════════════════════════════════╗
+      ║   REPLACE THIS BLOCK WITH THE FINAL ADIA VIDEO      ║
+      ╠══════════════════════════════════════════════════════╣
+      ║                                                      ║
+      ║  Option A — Local MP4 file:                          ║
+      ║    <div class="ratio-16-9">                          ║
+      ║      <video controls playsinline poster="thumb.jpg"> ║
+      ║        <source src="adia-transunion.mp4"             ║
+      ║                type="video/mp4"/>                    ║
+      ║      </video>                                        ║
+      ║    </div>                                            ║
+      ║                                                      ║
+      ║  Option B — YouTube:                                 ║
+      ║    <div class="ratio-16-9">                          ║
+      ║      <iframe                                         ║
+      ║        src="https://www.youtube.com/embed/VIDEO_ID   ║
+      ║             ?rel=0&modestbranding=1"                 ║
+      ║        frameborder="0" allowfullscreen>              ║
+      ║      </iframe>                                       ║
+      ║    </div>                                            ║
+      ║                                                      ║
+      ║  Option C — Vimeo:                                   ║
+      ║    <div class="ratio-16-9">                          ║
+      ║      <iframe                                         ║
+      ║        src="https://player.vimeo.com/video/VIDEO_ID" ║
+      ║        frameborder="0" allowfullscreen>              ║
+      ║      </iframe>                                       ║
+      ║    </div>                                            ║
+      ╚══════════════════════════════════════════════════════╝
+      -->
+      <div class="bg-backgroundCard aspect-video flex flex-col items-center justify-center gap-5 border-2 border-dashed border-primary/20 rounded-b-2xl"
+           id="videoPlaceholder">
+        <div class="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center glow">
+          <span class="material-symbols-outlined text-primary text-3xl">movie</span>
+        </div>
+        <div class="text-center">
+          <p class="text-white font-bold mb-1">AdIA Production — Final Video</p>
+          <p class="text-slate-500 text-sm">Replace this placeholder with the actual video when ready</p>
+        </div>
+      </div>
+      <!-- END REPLACE BLOCK -->
+
+    </div>
+
+    <!-- Metrics -->
+    <div class="reveal mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="stat-card bg-backgroundCard border border-white/8 hover:border-primary/30 rounded-2xl p-5 text-center cursor-default">
+        <p class="text-primary text-3xl font-black mb-1">10×</p>
+        <p class="text-slate-500 text-xs">Faster production</p>
+      </div>
+      <div class="stat-card bg-backgroundCard border border-white/8 hover:border-primary/30 rounded-2xl p-5 text-center cursor-default">
+        <p class="text-primary text-3xl font-black mb-1">∞</p>
+        <p class="text-slate-500 text-xs">Scalability</p>
+      </div>
+      <div class="stat-card bg-backgroundCard border border-white/8 hover:border-primary/30 rounded-2xl p-5 text-center cursor-default">
+        <p class="text-primary text-3xl font-black mb-1">↑</p>
+        <p class="text-slate-500 text-xs">Creative impact</p>
+      </div>
+      <div class="stat-card bg-backgroundCard border border-white/8 hover:border-primary/30 rounded-2xl p-5 text-center cursor-default">
+        <p class="text-primary text-3xl font-black mb-1">✓</p>
+        <p class="text-slate-500 text-xs">Brand-safe</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     WHAT THIS MEANS
+══════════════════════════════════════ -->
+<section class="py-20 md:py-28">
+  <div class="max-w-5xl mx-auto px-6">
+
+    <div class="reveal text-center mb-14">
+      <span class="inline-block text-primary text-xs font-bold uppercase tracking-[.2em] bg-primary/10 px-4 py-1 rounded-full mb-6">
+        The AdIA Advantage
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+        What this means for TransUnion.
+      </h2>
+      <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+        This isn't just a better video. It's a new model for content production at enterprise scale.
+      </p>
+    </div>
+
+    <div class="reveal grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-3xl p-8 group hover:border-primary/20 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+          <span class="material-symbols-outlined text-primary">speed</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Compress time-to-market</h3>
+        <p class="text-slate-400 leading-relaxed text-sm">
+          Traditional production takes weeks. With AdIA, you go from brief to broadcast in days.
+          Move faster than the competition without compromising quality.
+        </p>
+      </div>
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-3xl p-8 group hover:border-primary/20 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+          <span class="material-symbols-outlined text-primary">layers</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Scale across markets</h3>
+        <p class="text-slate-400 leading-relaxed text-sm">
+          One brief becomes dozens of versions — adapted for different markets, languages, formats, and
+          channels. AI makes localization and versioning effortless.
+        </p>
+      </div>
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-3xl p-8 group hover:border-primary/20 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+          <span class="material-symbols-outlined text-primary">savings</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Optimize your budget</h3>
+        <p class="text-slate-400 leading-relaxed text-sm">
+          Produce more, spend less. Our AI-assisted workflows reduce production costs dramatically
+          while delivering output that rivals — or exceeds — traditional production houses.
+        </p>
+      </div>
+
+      <div class="bg-backgroundCard/60 border border-white/8 rounded-3xl p-8 group hover:border-primary/20 transition-all">
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 mb-6 group-hover:bg-primary/20 transition-colors">
+          <span class="material-symbols-outlined text-primary">trending_up</span>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-3">Iterate without limits</h3>
+        <p class="text-slate-400 leading-relaxed text-sm">
+          Test multiple creative directions simultaneously. Let data pick the winner.
+          With AdIA, creative iteration is no longer a bottleneck — it's a strategic advantage.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     CTA
+══════════════════════════════════════ -->
+<section class="py-20 md:py-28 bg-black/20">
+  <div class="max-w-3xl mx-auto px-6 reveal">
+
+    <div class="bg-backgroundCard border border-white/8 rounded-3xl p-10 md:p-16 relative overflow-hidden text-center">
+      <div class="noise rounded-3xl"></div>
+      <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/6 to-transparent rounded-3xl"></div>
+
+      <div class="relative">
+        <span class="material-symbols-outlined text-primary text-5xl mb-6 block">rocket_launch</span>
+
+        <h2 class="text-3xl md:text-4xl font-black text-white mb-4">
+          Ready to bring this<br/>inside TransUnion?
+        </h2>
+        <p class="text-slate-400 leading-relaxed mb-8 max-w-md mx-auto">
+          Let's talk about how AdIA can transform your content production pipeline —
+          at scale, at speed, without compromise.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="mailto:hola@getadia.com?subject=TransUnion%20%C3%97%20AdIA%20%E2%80%94%20Let%27s%20talk"
+            class="bg-primary text-backgroundDark font-bold px-8 py-3.5 rounded-xl hover:bg-primary/90 transition text-sm"
+          >
+            Start the conversation &rarr;
+          </a>
+          <a
+            href="https://getadia.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="border border-white/15 text-slate-200 font-semibold px-8 py-3.5 rounded-xl hover:bg-white/5 transition text-sm"
+          >
+            Explore AdIA
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
+<footer class="border-t border-white/5 py-8">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+    <div class="flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm text-primary/50">auto_awesome</span>
+      Ad<span class="text-primary/50">IA</span> &mdash; Creative Execution Powered by Intelligence
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class="material-symbols-outlined text-xs lock-pulse">lock</span>
+      Confidential &middot; For internal use only &middot; <span id="footerYear"></span>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════ -->
+<script>
+  // ── Password ──────────────────────────────────────────────
+  // Change the value below to any access code you want.
+  const CORRECT_PASSWORD = "transunion2026";
+
+  const gate      = document.getElementById('passwordGate');
+  const form      = document.getElementById('passwordForm');
+  const input     = document.getElementById('passwordInput');
+  const errMsg    = document.getElementById('passwordError');
+
+  // Persist auth within the browser session (no re-entry on refresh)
+  if (sessionStorage.getItem('adia_auth') === '1') {
+    gate.classList.add('gone');
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (input.value.trim() === CORRECT_PASSWORD) {
+      sessionStorage.setItem('adia_auth', '1');
+      gate.classList.add('fade-out');
+      setTimeout(() => gate.classList.add('gone'), 520);
+      errMsg.classList.add('hidden');
+    } else {
+      errMsg.classList.remove('hidden');
+      input.value = '';
+      input.focus();
+      input.classList.add('border-red-500/40');
+      setTimeout(() => input.classList.remove('border-red-500/40'), 2000);
+    }
+  });
+
+  // ── Scroll reveal ─────────────────────────────────────────
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Footer year ───────────────────────────────────────────
+  document.getElementById('footerYear').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
