@@ -448,15 +448,11 @@
       ║    </div>                                            ║
       ╚══════════════════════════════════════════════════════╝
       -->
-      <div class="bg-backgroundCard aspect-video flex flex-col items-center justify-center gap-5 border-2 border-dashed border-primary/20 rounded-b-2xl"
-           id="videoPlaceholder">
-        <div class="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/25 flex items-center justify-center glow">
-          <span class="material-symbols-outlined text-primary text-3xl">movie</span>
-        </div>
-        <div class="text-center">
-          <p class="text-white font-bold mb-1">AdIA Production — Final Video</p>
-          <p class="text-slate-500 text-sm">Replace this placeholder with the actual video when ready</p>
-        </div>
+      <div class="ratio-16-9" id="videoPlaceholder">
+        <video controls playsinline preload="metadata"
+          style="background:#0D1820;">
+          <source src="EXPORT_V8_B_CELU.mp4" type="video/mp4"/>
+        </video>
       </div>
       <!-- END REPLACE BLOCK -->
 
